@@ -443,9 +443,13 @@ public class Display extends JFrame {
         }
 
         public void paintGraph(Graphics g) {
-            // TODO: for each edge in the graph, use paintEdge(g, edge.source, edge.target, edge.distance, Color.LIGHT_GRAY, DEFAULT_THICKNESS, 255); to print the edge.
+            for(Vertex v : graph.getVertices()){
+                paintVertex(g, v);
+                for(Edge e : v.getEdges()){
+                    paintEdge(g, e.getSource(), e.getTarget(), e.getDistance(), Color.LIGHT_GRAY, DEFAULT_THICKNESS, 255);
+                }
+            }
 
-            // TODO: for each vertex in the graph, use paintVertex(g, v); to print the vertex
 
             for (String overlayType : overlayEdges.keySet()) {
                 if (overlayType.equals("unweighted")) {

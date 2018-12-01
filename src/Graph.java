@@ -1,17 +1,17 @@
-import java.util.Collection;
-import java.util.List;
-import java.util.PriorityQueue;
+import sun.jvm.hotspot.oops.Array;
+
+import java.util.*;
 
 public class Graph {
 
-    // TODO: define a data structure to store all the vertices with fast access
+    HashMap<Integer, Vertex> vertexMap;
 
     /**
      * Constructor for Graph
      */
     public Graph() {
 
-        // TODO
+        vertexMap = new HashMap<>();
 
     }
 
@@ -24,7 +24,13 @@ public class Graph {
      */
     public void addVertex(Vertex v) throws IllegalArgumentException {
 
-        // TODO
+        int hashKey = v.hashCode();
+
+        if(vertexMap.containsKey(hashKey)){
+            throw new IllegalArgumentException();
+        }else{
+            vertexMap.put(hashKey, v);
+        }
 
     }
 
@@ -35,9 +41,7 @@ public class Graph {
      */
     public Collection<Vertex> getVertices() {
 
-        // TODO
-
-        return null;
+        return vertexMap.values();
     }
 
     /**
@@ -48,9 +52,8 @@ public class Graph {
      */
     public Vertex getVertex(String name) {
 
-        // TODO
-
-        return null;
+        int hashKey = name.hashCode();
+        return vertexMap.get(hashKey);
     }
 
     /**
@@ -64,7 +67,17 @@ public class Graph {
      */
     public void addEdge(String nameU, String nameV, Double weight) throws IllegalArgumentException {
 
-        // TODO
+        int hashKeyU = nameU.hashCode();
+        int hashKeyV = nameV.hashCode();
+
+        if(!vertexMap.containsKey(hashKeyU) || !vertexMap.containsKey(hashKeyV)){
+            throw new IllegalArgumentException();
+        }else{
+            Vertex U = vertexMap.get(hashKeyU);
+            Vertex V = vertexMap.get(hashKeyV);
+            Edge newEdge = new Edge(U, V, weight);
+            U.setEdge(newEdge);
+        }
 
     }
 
@@ -78,8 +91,8 @@ public class Graph {
      */
     public void addUndirectedEdge(String nameU, String nameV, double weight) {
 
-        // TODO
-
+        addEdge(nameU, nameV, weight);
+        addEdge(nameV, nameU, weight);
     }
 
     /**
@@ -94,9 +107,7 @@ public class Graph {
      */
     public double computeEuclideanDistance(double ux, double uy, double vx, double vy) {
 
-        // TODO
-
-        return 0.0;
+        return Math.sqrt(Math.pow(vx - ux, 2) + Math.pow(vy - uy, 2));
     }
 
     /**
@@ -105,7 +116,17 @@ public class Graph {
      */
     public void computeAllEuclideanDistances() {
 
-        // TODO
+        //Loop through each vertex in map
+        for(Vertex v : getVertices()){
+            //Loop through each vertex edge has
+            for(Edge e : v.getEdges()){
+                //Compute euclidean distance between source and target
+                double euclidDist = computeEuclideanDistance(e.getSource().getX(), e.getSource().getY(),
+                                                            e.getTarget().getX(), e.getTarget().getY());
+                //Set distance of current edge to euclidean distance
+                e.setDistance(euclidDist);
+            }
+        }
 
     }
 
@@ -114,7 +135,11 @@ public class Graph {
      */
     private void resetAllVertices() {
 
-        // TODO
+        for(Vertex v : getVertices()){
+            v.setVisited(false);
+            v.setPredEdge(null);
+            v.setDistance(Double.MAX_VALUE);
+        }
 
     }
 
@@ -125,8 +150,26 @@ public class Graph {
      * @param t the name of the targeting vertex
      */
     public void DFS(String s, String t) {
+        Stack<Vertex> fronteir = new Stack<>();
+        Vertex startV = getVertex(s);
+        Vertex endV = getVertex(t);
 
-        // TODO
+        fronteir.push(startV);
+        startV.setVisited(true);
+        while(!fronteir.empty()){
+            Vertex currentV = fronteir.pop();
+            for(Edge e : currentV.getEdges()){
+                if(!e.getTarget().wasVisited()){
+                    e.getTarget().setPredEdge(e);
+                    fronteir.push(e.getTarget());
+                }
+            }
+            currentV.setVisited(true);
+            if(currentV == endV){
+                break;
+            }
+
+        }
 
     }
 
@@ -137,8 +180,26 @@ public class Graph {
      * @param t the name of the targeting vertex
      */
     public void BFS(String s, String t) {
+        LinkedList<Vertex> fronteir = new LinkedList<>();
+        Vertex startV = getVertex(s);
+        Vertex endV = getVertex(t);
 
-        // TODO
+        fronteir.push(startV);
+        startV.setVisited(true);
+
+        while(!fronteir.isEmpty()){
+            Vertex currentV = fronteir.poll();
+            if(currentV == endV){
+                break;
+            }
+            for(Edge e : currentV.getEdges()){
+                if(!e.getTarget().wasVisited()){
+                    e.getTarget().setVisited(true);
+                    e.getTarget().setPredEdge(e);
+                    fronteir.add(e.getTarget());
+                }
+            }
+        }
 
     }
 
@@ -167,8 +228,29 @@ public class Graph {
      */
     public void Dijkstra(String s, String t) {
         PriorityQueue<CostVertex> queue = new PriorityQueue<>();
+        Vertex startV = getVertex(s);
+        Vertex endV = getVertex(t);
+        startV.setDistance(0);
+        startV.setPredEdge(null);
+        queue.add(new CostVertex(startV.getDistance(), startV));
 
-        // TODO
+        while(!queue.isEmpty()){
+            CostVertex currentV = queue.poll();
+
+            if(currentV.vertex == endV){
+                break;
+            }
+
+            for(Edge e : currentV.vertex.getEdges()){
+                double newDistance = currentV.cost + e.getDistance();
+                if(!e.getTarget().wasVisited() || newDistance < e.getTarget().getDistance()){
+                    e.getTarget().setDistance(newDistance);
+                    queue.add(new CostVertex(newDistance, e.getTarget()));
+                    e.getTarget().setPredEdge(e);
+                    e.getTarget().setVisited(true);
+                }
+            }
+        }
 
     }
 
@@ -181,9 +263,10 @@ public class Graph {
      */
     private double hValue(String cur, String goal) {
 
-        // TODO
+        Vertex curV = vertexMap.get(cur.hashCode());
+        Vertex goalV = vertexMap.get(goal.hashCode());
 
-        return 0.0;
+        return computeEuclideanDistance(curV.getX(), curV.getY(), goalV.getX(), goalV.getY());
     }
 
     /**
@@ -194,7 +277,30 @@ public class Graph {
      */
     public void AStar(String s, String t) {
 
-        // TODO
+        PriorityQueue<CostVertex> queue = new PriorityQueue<>();
+        Vertex startV = getVertex(s);
+        Vertex endV = getVertex(t);
+        startV.setDistance(0);
+        startV.setPredEdge(null);
+        queue.add(new CostVertex(startV.getDistance(), startV));
+
+        while(!queue.isEmpty()){
+            CostVertex currentV = queue.poll();
+
+            if(currentV.vertex == endV){
+                break;
+            }
+
+            for(Edge e : currentV.vertex.getEdges()){
+                double newDistance = currentV.vertex.getDistance() + e.getDistance();
+                if(!e.getTarget().wasVisited() || newDistance < e.getTarget().getDistance()){
+                    e.getTarget().setDistance(newDistance);
+                    queue.add(new CostVertex(newDistance + hValue(t, e.getTarget().getName()), e.getTarget()));
+                    e.getTarget().setPredEdge(e);
+                    e.getTarget().setVisited(true);
+                }
+            }
+        }
 
     }
 
@@ -206,10 +312,18 @@ public class Graph {
      * @return list of edges from s to t
      */
     public List<Edge> getPath(String s, String t) {
-
-        // TODO
-
-        return null;
+        Vertex startV = vertexMap.get(s.hashCode());
+        Vertex endV = vertexMap.get(t.hashCode());
+        LinkedList<Edge> path = new LinkedList<>();
+        if(endV.wasVisited()){
+            Edge currentEdge = endV.getPredEdge();
+            while(currentEdge != startV.getPredEdge()){
+                path.add(currentEdge);
+                currentEdge = currentEdge.getSource().getPredEdge();
+            }
+        }
+        resetAllVertices();
+        return path;
     }
 
 }

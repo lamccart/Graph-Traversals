@@ -1,16 +1,24 @@
+import java.util.Collection;
+import java.util.LinkedList;
 
 public class Vertex {
 
     private final String name; // the name of this vertex
     private final int x; // the x coordinates of this vertex on map
     private final int y; // the y coordinates of this vertex on map
-
-    // TODO: add additional instance variables to work with different graph traversal algorithm
+    private boolean visited;
+    private Edge predEdge;
+    private double distance;
+    private LinkedList<Edge> edges; //edges the vertex is connected to
 
     public Vertex(String name, int x, int y) {
         this.name = name;
         this.x = x;
         this.y = y;
+        edges = new LinkedList<>();
+        visited = false;
+        predEdge = null;
+        distance = Double.MAX_VALUE;
     }
 
     public String getName() {
@@ -25,7 +33,37 @@ public class Vertex {
         return y;
     }
 
-    // TODO: add necessary getters and setters for ALL your instance variable
+    public LinkedList<Edge> getEdges(){
+        return edges;
+    }
+
+    public void setEdge(Edge e){
+        edges.addLast(e);
+    }
+
+    public boolean wasVisited(){
+        return visited;
+    }
+
+    public void setVisited(boolean b){
+        visited = b;
+    }
+
+    public double getDistance(){
+        return distance;
+    }
+
+    public void setDistance(double d){
+        distance = d;
+    }
+
+    public Edge getPredEdge(){
+        return predEdge;
+    }
+
+    public void setPredEdge(Edge e){
+        predEdge = e;
+    }
 
     @Override
     public int hashCode() {
