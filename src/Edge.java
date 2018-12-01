@@ -1,4 +1,8 @@
-
+/**
+ * Name: Liam McCarthy
+ * PID: A14029718
+ * Since: 12/1/2018
+ */
 public class Edge {
 
     private double distance; // the distance from source to target

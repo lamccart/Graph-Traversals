@@ -1,3 +1,8 @@
+/**
+ * Name: Liam McCarthy
+ * PID: A14029718
+ * Since: 12/1/2018
+ */
 import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Desktop;
