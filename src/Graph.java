@@ -374,7 +374,7 @@ public class Graph {
             //Check if we have not reached the start
             while(currentEdge != startV.getPredEdge()){
                 //add the current edge to path
-                path.add(currentEdge);
+                path.addFirst(currentEdge);
                 //set current edge to the predecessor edge of the source
                 currentEdge = currentEdge.getSource().getPredEdge();
             }
